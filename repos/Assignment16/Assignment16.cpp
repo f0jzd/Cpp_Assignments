@@ -1,20 +1,60 @@
-// Assignment16.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
-
 #include <iostream>
 
-int main()
+using namespace std;
+
+
+
+bool ContainsWord(string sentence, int sentenceSize, string substr, int substrSize)
 {
-    std::cout << "Hello World!\n";
+    int temp = 0;
+
+    cout << sentenceSize;
+
+    for (int i = 0; i < sentenceSize; ++i) {
+
+        cout << sentence[i] << " : " << substr[temp] << endl;
+
+        if (sentence[i] == substr[temp])
+        {
+            temp++;
+        }
+        else
+        {
+            temp = 0;
+        }
+        if (temp == substrSize)
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
 
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
+int main() {
+
+    string sentence, substr = "name";
+
+    int sentenceSize, substrSize;
+
+
+    bool doesContain = false;
+
+
+    cout << "Input a sentence: " << endl;
+    getline(cin, sentence);
+
+    cout << size(sentence) << endl;
+
+    sentenceSize = size(sentence);
+    substrSize = size(substr);
+
+
+    doesContain = ContainsWord(sentence, sentenceSize, substr, substrSize);
+
+    if (doesContain)
+        cout << "The word ''" << sentence << "'' does contain the substring ''" << substr << "''" << endl;
+    if (!doesContain)
+        cout << "The word ''" << sentence << "'' does NOT contain the substring ''" << substr << "''" << endl;
+
+}

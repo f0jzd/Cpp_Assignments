@@ -1,20 +1,50 @@
-// Assignment5.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
-
 #include <iostream>
 
-int main()
+void SwapNumsPointer(int* n1, int* n2);
+void SwapNumsReference(int& nr1, int& nr2);
+int main() {
+    int nr1, nr2;
+
+    ///Swapping using std::swap
+    //std::cout << "Input number A: ";
+    //std::cin >> nr1;
+    //std::cout << "Input number B: ";
+    //std::cin >>nr2;
+    //std::cout << "Swapping";
+    //std::swap(nr1,nr2);
+    //std::cout << nr1 <<" "<< nr2;
+
+    ///Swapping With Reference
+    std::cout << "Input number A: ";
+    std::cin >> nr1;
+    std::cout << "Input number B: ";
+    std::cin >> nr2;
+    std::cout << "Swapping: ";
+    SwapNumsReference(nr1, nr2);
+    std::cout << nr1 << " " << nr2;
+
+    ///Swapping with Pointer
+    std::cout << "Input number A: ";
+    std::cin >> nr1;
+    std::cout << "Input number B: ";
+    std::cin >> nr2;
+    std::cout << "Swapping: ";
+    SwapNumsPointer(&nr1, &nr2);
+    std::cout << nr1 << " " << nr2;
+
+
+}
+void SwapNumsPointer(int* n1, int* n2)
 {
-    std::cout << "Hello World!\n";
+    int z = *n1;
+    *n1 = *n2;
+    *n2 = z;
+}
+void SwapNumsReference(int& nr1, int& nr2)
+{
+    int z = nr1;
+    nr1 = nr2;
+    nr2 = z;
 }
 
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
 
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file

@@ -1,66 +1,36 @@
 #include <iostream>
 #include <string>
-#include <map>
 
 using namespace std;
 
 
-void compressString(map<char, int>& charMap, string& word)
+
+void Permutations(string str, int i, int n)
 {
-
-    for (int i = 0; i < word.length(); ++i) {
-
-        auto iter = charMap.find(word[i]);
-
-        if (iter == charMap.end())
-        {
-            if (word[i] != ' ')
-                charMap.insert({ word[i],1 });
-        }
-        else
-        {
-            iter->second++;
-        }
-    }
-
-    string compressedString;
-    for (auto val : charMap)
+    if (i==n-1)
     {
-        compressedString += val.first + to_string(val.second);
+        cout << str << endl;
+        return;
+    }
+    for (int j = i; j < n; j++) {
+        swap(str[i],str[j]);
+
+        Permutations(str,i+1,n);
+
+        swap(str[i],str[j]);
     }
 
-    cout << sizeof(word) << endl;
-
-    word = compressedString;
-
-    cout << sizeof(word) << endl;
 }
-
-void uncompressString(map<char, int>& charMap, string& word)
-{
-    string uncompressedWord;
-    for (auto iter = charMap.begin(); iter != charMap.end(); iter++) {
-        for (int i = 0; i < iter->second; ++i) {
-            uncompressedWord += iter->first;
-        }
-    }
-    word = uncompressedWord;
-}
-
-
 
 
 int main() {
 
-    string word;
-    map<char, int> compStrMap;
+    string abc = "ABC";
 
-    cout << "Enter a word: ";
-    getline(cin, word);
-    compressString(compStrMap, word);
-    cout << word << endl;
-    uncompressString(compStrMap, word);
-    cout << word << endl;
+    Permutations(abc,0,abc.length());
+
+
+
 
 
     return 0;

@@ -1,20 +1,46 @@
-// Assignment11.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
-
 #include <iostream>
 
-int main()
+using namespace std;
+
+void GetSummary(int* numbers, int arraySize, int& sum)
 {
-    std::cout << "Hello World!\n";
+    for (int i = 0; i < arraySize; ++i) {
+        sum += numbers[i];
+    }
 }
+void GetSmallestNumber(int* numbers, int arraySize, int& num)
+{
+    num = numbers[4];
+    for (int i = 0; i < arraySize; ++i) {
+        if (numbers[i] < num)
+        {
+            num = numbers[i];
+        }
+    }
+}
+void GetHighest(int* numbers, int arraySize, int& num)
+{
+    num = numbers[0];
+    for (int i = 0; i < arraySize; ++i) {
+        if (numbers[i] > num)
+        {
+            num = numbers[i];
+        }
+    }
+}
+int main() {
 
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
+    int sum = 0, arraySize = 0, num;
+    float average;
+    int numbers[]{ 11,41,62,81,16,23,46,12 };
+    for (int value : numbers) {
+        arraySize++;
+    }
+    GetSummary(numbers, arraySize, sum);
+    cout << "The sum of all the values are: " << sum << endl;
+    cout << "The average of all the values are: " << (float)sum / 8 << endl;
+    GetSmallestNumber(numbers, arraySize, num);
+    cout << "The smallest of all the values is: " << num << endl;
+    GetHighest(numbers, arraySize, num);
+    cout << "The smallest of all the values is: " << num << endl;
+}

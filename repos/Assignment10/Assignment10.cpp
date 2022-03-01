@@ -1,20 +1,51 @@
-// Assignment10.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
-
 #include <iostream>
+#include <bitset>
 
-int main()
-{
-    std::cout << "Hello World!\n";
+using namespace std;
+
+
+void GetBit(int& bitToGet, int& num);
+void SetBit(int& bitToSet, int& num);
+
+int main() {
+
+    int numberToGet, numberToSet, bitVal, number;
+
+    cout << "Enter the number you want to check the bit of: ";
+    cin >> number;
+
+    cout << bitset<16>(number) << endl;
+
+
+    cout << "Enter the nth bit from the number you want: ";
+    cin >> numberToGet;
+
+
+    GetBit(numberToGet, number);
+
+    cout << "Enter the number of the bit you want to set: ";
+    cin >> numberToSet;
+
+    SetBit(numberToSet, number);
+
+    cout << number << endl;
+
 }
 
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
+void GetBit(int& bitToGet, int& num)
+{
+    cout << bitset<8>(num) << endl;
+    int bit = (num >> bitToGet) & 1;
+    cout << bitset<8>(num) << endl;
+    cout << bit << endl;
 
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
+}
+void SetBit(int& bitToSet, int& num)
+{
+    cout << bitset<8>(num) << endl;
+    num ^= 1UL << bitToSet;
+    cout << bitset<8>(num) << endl;
+
+
+
+}
