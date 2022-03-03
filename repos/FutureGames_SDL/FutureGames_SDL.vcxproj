@@ -90,6 +90,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\brick.cpp" />
     <ClCompile Include="src\collision.cpp" />
     <ClCompile Include="src\engine.cpp" />
     <ClCompile Include="src\game.cpp" />
@@ -98,6 +99,7 @@
     <ClCompile Include="src\projectile.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\brick.h" />
     <ClInclude Include="src\collision.h" />
     <ClInclude Include="src\engine.h" />
     <ClInclude Include="src\game.h" />

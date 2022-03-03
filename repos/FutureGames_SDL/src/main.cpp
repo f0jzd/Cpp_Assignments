@@ -49,6 +49,11 @@ int main()
 	Uint64 previousTicks = SDL_GetPerformanceCounter();
 
 
+	for (int i = 0; i < BRICK_MAX; i++)
+	{
+		bricks[i].y = 120 * i;
+	}
+
 
 
 	
@@ -131,7 +136,7 @@ int main()
 					running = false;
 
 				keys[scancode] = true;//Sets the specific key bool to true, depending on the key we press.
-				
+
 				break;
 			}
 			case SDL_KEYUP:
@@ -142,12 +147,12 @@ int main()
 				break;
 			}
 			}
-			
+
 		}
 
-		
-		
-		SDL_SetRenderDrawColor(render,25,25,40,255);
+
+
+		SDL_SetRenderDrawColor(render, 25, 25, 40, 255);
 		SDL_RenderClear(render);
 
 		player.update();
@@ -158,8 +163,14 @@ int main()
 			projectiles[i].update();
 			projectiles[i].draw();
 		}
-		
-		
+
+		for (int i = 0; i < BRICK_MAX; i++)
+		{
+			bricks[i].draw();
+		}
+
+
+
 		/*Circle b = {300,400,100};
 
 		Circle a ={ player.x,player.y,32 };
@@ -176,13 +187,38 @@ int main()
 
 		draw_circle(a);
 		draw_circle(b);*/
-	
+
+		/*
+		Circle AC = { player.x, player.y, 100 };
 
 		AABB ab;
-		AABB a = AABB::make_from_position_size(player.x, player.y,50, 50);
+		//AABB a = AABB::make_from_position_size(player.x, player.y,50, 50);
 		AABB b = AABB::make_from_position_size(600, 200, 150, 25);
+		
+		if (aabb_circle_intersect(b,AC))
+		{
+
+			SDL_SetRenderDrawColor(render, 255, 0, 0, 255);
+		}
+		else
+		{
+
+			SDL_SetRenderDrawColor(render, 0, 0, 255, 255);
+		}
+
+		/*if (aabb_intersect(a, b))
+		{
+			SDL_SetRenderDrawColor(render, 255, 0, 0, 255);
+		}
+		else
+		{
+			SDL_SetRenderDrawColor(render, 0, 255, 0, 255);
+		}*/
+		/*
 		draw_box(a);
 		draw_box(b);
+		draw_circle(AC);
+		*/
 
 		SDL_RenderPresent(render);
 
