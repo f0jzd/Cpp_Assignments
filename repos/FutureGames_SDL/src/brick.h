@@ -5,11 +5,13 @@ struct Brick
 {
 
 	bool alive = true;
+	
+	float w = 160.f;
+	float h = 60.f;
 
-	float x=600;
-	float y=200;
-	float w = 40.f;
-	float h = 100.f;
+	float x = 0;//x-width/2
+	float y = 0; //y+height/2
+	
 
 	void draw();
 	

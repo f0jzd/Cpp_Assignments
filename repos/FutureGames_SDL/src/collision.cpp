@@ -7,7 +7,7 @@ const float TAU = 6.28318530718;
 
 void draw_circle(const Circle& c)
 {
-	int resolution = 12;
+	int resolution = 100;
 
 	float step = (PI * 2) / resolution;
 

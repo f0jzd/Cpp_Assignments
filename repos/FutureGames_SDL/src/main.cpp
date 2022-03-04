@@ -16,7 +16,7 @@ int main()
 
 
 	SDL_Init(SDL_INIT_EVERYTHING);//Initialize the usage of everything
-	window = SDL_CreateWindow("Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 720, 0); //A structure to refer to the window we just made
+	window = SDL_CreateWindow("Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGHT, 0); //A structure to refer to the window we just made
 	render = SDL_CreateRenderer(window,-1,SDL_RENDERER_ACCELERATED);
 	SDL_Texture* img = NULL;
 
@@ -48,11 +48,8 @@ int main()
 
 	Uint64 previousTicks = SDL_GetPerformanceCounter();
 
-
-	for (int i = 0; i < BRICK_MAX; i++)
-	{
-		bricks[i].y = 120 * i;
-	}
+	
+	
 
 
 
@@ -164,18 +161,35 @@ int main()
 			projectiles[i].draw();
 		}
 
-		for (int i = 0; i < BRICK_MAX; i++)
+
+	
+		for (int i = 0; i < BRICK_COLUMNS; ++i)
 		{
-			bricks[i].draw();
+			for (int j = 0; j < BRICK_ROWS; j++)
+			{
+				bricks[i][j].x = bricks[i][j].w * i + bricks[i][j].w * 1.5;//30 here is the distance from the left side of the screen, while the bricks.w is the distance between the bricks
+				bricks[i][j].y = bricks[i][j].h * j + bricks[i][j].h * 1.5;//30 here is the distance from the left side of the screen, while the bricks.w is the distance between the bricks
+			}
+		}
+		
+
+		for (int i = 0; i <BRICK_COLUMNS ; ++i)
+		{
+			for (int j = 0; j < BRICK_ROWS; j++)
+			{
+				bricks[i][j].draw();
+			}
 		}
 
 
+		/*AABB a = AABB::make_from_position_size(player.x, player.y, 64, 64);
+		draw_box(a);*/
 
-		/*Circle b = {300,400,100};
 
-		Circle a ={ player.x,player.y,32 };
+		/*Circle a = {player.x,player.y,32};
+		draw_circle(a);
 
-		if (circle_intersect(a, b))
+		/*if (circle_intersect(a, b))
 		{
 			SDL_SetRenderDrawColor(render, 255, 0, 0, 255);
 		}
@@ -185,7 +199,7 @@ int main()
 			SDL_SetRenderDrawColor(render, 0, 255, 0, 255);
 		}
 
-		draw_circle(a);
+		
 		draw_circle(b);*/
 
 		/*

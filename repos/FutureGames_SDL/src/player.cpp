@@ -20,14 +20,16 @@ void Player::update()
 
 
 	shoot_timer -= delta_time;
-	if (keys[SDL_SCANCODE_SPACE] && shoot_timer < 0)
+	if (keys[SDL_SCANCODE_SPACE] && shoot_timer < 0)//HERE WE FIRE BULLET; ENEMY GO boom.
 	{
 
 		Projectile& proj = projectiles[next_projectile_index];
 		proj.alive = true;
 		proj.x = x;
-		proj.y = y; 
+		proj.y = y-32; 
 
+		proj.velocity_y = -200.f;
+		
 		shoot_timer = 0.2f;//1 second pause we can shoot again.
 
 		next_projectile_index++;

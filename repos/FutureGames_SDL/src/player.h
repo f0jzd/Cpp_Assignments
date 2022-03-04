@@ -3,8 +3,8 @@
 
 struct Player
 {
-	float x{ 100 };
-	float y{100 };
+	float x{ 800 };
+	float y{ 800 };
 
 	float shoot_timer = 0.f;
 
