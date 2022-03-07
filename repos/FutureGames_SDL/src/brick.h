@@ -5,6 +5,11 @@ struct Brick
 {
 
 	bool alive = true;
+
+	bool breakable = true;
+	bool strongWall = false;
+
+	int strongWallLifes{ 4 };
 	
 	float w = 160.f;
 	float h = 60.f;

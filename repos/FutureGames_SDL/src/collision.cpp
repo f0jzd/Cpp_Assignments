@@ -72,6 +72,8 @@ AABB AABB::make_from_position_size(float x, float y, float w, float h)
 	return box;
 }
 
+
+
 bool aabb_intersect(const AABB& a, const AABB& b)
 {
 	return (a.x_max > b.x_min &&
@@ -80,8 +82,6 @@ bool aabb_intersect(const AABB& a, const AABB& b)
 		b.y_max > a.y_min);
 	
 }
-
-
 float clamp(float a, float min, float max)
 {
 
@@ -106,7 +106,7 @@ bool aabb_circle_intersect(const AABB& a, const Circle& b)
 	float dx = b.x - clamped_x;
 	float dy = b.y - clamped_y;
 
-	float dist_sqrd = dx * dx + dy*dy;
+	float dist_sqrd = dx*dx + dy*dy;
 	float dist = sqrt(dist_sqrd);
 
 	return dist < b.radius;

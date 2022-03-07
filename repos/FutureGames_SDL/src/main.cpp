@@ -29,10 +29,6 @@ int main()
 
 
 
-	if (SDL_Init(SDL_INIT_VIDEO) < 0)
-	{
-
-	}
 
 	int imgH = 200* 4;
 	int imgW = 200* 4;
@@ -55,9 +51,9 @@ int main()
 
 	
 
-	window = SDL_CreateWindow("keke.bmp", 100, 100, WIDTH, HEIGHT,0);
-	render = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);//We need render to render stuff
-	img = IMG_LoadTexture(render, "keke.bmp");
+	//window = SDL_CreateWindow("keke.bmp", 100, 100, WIDTH, HEIGHT,0);
+	//render = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);//We need render to render stuff
+	//img = IMG_LoadTexture(render, "keke.bmp");
 
 	//SDL_QueryTexture(img, NULL, NULL, &imgW, &imgH);
 
@@ -148,9 +144,9 @@ int main()
 		}
 
 
-
-		SDL_SetRenderDrawColor(render, 25, 25, 40, 255);
+		SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
 		SDL_RenderClear(render);
+		
 
 		player.update();
 		player.draw();
@@ -163,7 +159,7 @@ int main()
 
 
 	
-		for (int i = 0; i < BRICK_COLUMNS; ++i)
+		for (int i = 0; i < BRICK_COLUMNS; i++)
 		{
 			for (int j = 0; j < BRICK_ROWS; j++)
 			{
@@ -173,13 +169,42 @@ int main()
 		}
 		
 
-		for (int i = 0; i <BRICK_COLUMNS ; ++i)
+		for (int i = 0; i < BRICK_COLUMNS ; i++)
 		{
 			for (int j = 0; j < BRICK_ROWS; j++)
 			{
+				
+				if (i == 0 && j == 0)
+				{
+					bricks[i][j].breakable = false;
+				}
+				if (i == BRICK_COLUMNS-1 && j == 0)
+				{
+					bricks[i][j].breakable = false;
+				}
+				if (i == 0 && j == BRICK_ROWS-1)
+				{
+					bricks[i][j].breakable = false;
+				}
+				if (i == BRICK_COLUMNS-1 && j == BRICK_ROWS-1)
+				{
+					bricks[i][j].breakable = false;
+				}
 				bricks[i][j].draw();
 			}
 		}
+		for (int i = 1; i <= BRICK_COLUMNS-2; i++)
+		{
+			for (int j = 1; j < BRICK_ROWS-1; j++)
+			{
+				bricks[i][j].strongWall = true;
+			}
+		}
+		
+
+
+		
+
 
 
 		/*AABB a = AABB::make_from_position_size(player.x, player.y, 64, 64);
@@ -245,6 +270,12 @@ int main()
 		//Present the renderer from the backbuffer.
 
 		SDL_Delay(16);
+
+		if (player.playerLives <= 0)
+		{
+			SDL_Quit();
+			running = false;
+		}
 	}
 	return 0;
 

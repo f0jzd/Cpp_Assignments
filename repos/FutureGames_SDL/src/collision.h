@@ -28,4 +28,6 @@ bool aabb_intersect(const AABB& a, const AABB& b);
 
 bool aabb_circle_intersect(const AABB& a, const Circle& b);
 
+bool pointCircleIntersect(float px, float py, float cx, float cy, float r);
+
 

@@ -14,18 +14,12 @@ void Projectile::update()
 
 	if (!step(velocity_x*delta_time,0.f))
 	{
-		velocity_x = -velocity_x + sign(-velocity_x) *  10.f;
+		velocity_x = -velocity_x;
 	}
 	if (!step(0.f, velocity_y * delta_time))
 	{
-		velocity_y = -velocity_y + sign(-velocity_y) * 10.f;
+		velocity_y = -velocity_y;
 	}
-
-	step(velocity_x * delta_time,0.f);
-	step(0.f, velocity_y * delta_time);
-
-	//x += velocity_x * delta_time;
-	//y += velocity_y * delta_time;
 
 }
 void Projectile::draw()
@@ -49,32 +43,53 @@ bool Projectile::step(float dx, float dy)
 	Circle circle = { x+dx, y+dy, 4 };//Next collider of the bullet/ delta is change
 	draw_circle(circle);
 
-	AABB box = AABB::make_from_position_size(player.x, player.y, 32, 32);
-	draw_box(box);
+	AABB box = AABB::make_from_position_size(player.x-16, player.y+5, player.playerWidth, player.playerHeight);
+	AABB box2 = AABB::make_from_position_size(player.x+16, player.y+5, player.playerWidth, player.playerHeight);
+	draw_box(box);	
+	draw_box(box2);
 
 
 	for (int i = 0; i < BRICK_COLUMNS; i++)//Here we check collisions with all the bricks
 	{
 		for (int j = 0; j < BRICK_ROWS; j++)
 		{
-
-
 			Brick& brick = bricks[i][j];
 
 			if (!brick.alive)
 				continue;
 
-
+			
 			AABB box = AABB::make_from_position_size(brick.x, brick.y, brick.w, brick.h);
 
 
 			if (aabb_circle_intersect(box, circle))//If the circle and box intersect a.k.a. the bullet and the brick, then something happens
 			{
-				//return false;
+				
+				
+				if (!brick.breakable && !brick.strongWall)
+				{
+					return false;
+				}
+				else if (!brick.breakable || brick.strongWall)
+				{
+				     brick.strongWallLifes -= 1;
+					 if (brick.strongWallLifes == 0)
+					 {
+					 	brick.alive = false;	
+					 }
+					return false;
+				}
 
-				alive = false;
-				brick.alive = false;
-				return false;
+				if (brick.breakable)
+				{
+					brick.alive = false;
+					return	false;
+				}
+
+				
+				
+				//alive = false;
+				
 			}
 		}
 
@@ -82,18 +97,31 @@ bool Projectile::step(float dx, float dy)
 
 	
 
-	if (aabb_circle_intersect(box,circle))
+	if (aabb_circle_intersect(box, circle))
 	{
+		velocity_x = -90;
 		return false;
 	}
-
+	if (aabb_circle_intersect(box2, circle))
+	{
+		velocity_x = 90;
+		return false;
+	}
+	
 
 
 	//Check collision with game borders.
 	if (x+dx < 0 || x+dx >= 1600 ||
-		y+dy < 0 || y+dy >= 900)
+		y+dy < 0)
 	{
-	return false;
+		return false;
+	}
+	if (y + dy >= 900)
+	{
+		player.playerLives -= 1;
+		alive = false;
+		player.ballFired = false;
+		player.DrawBall();
 	}
 	
 
