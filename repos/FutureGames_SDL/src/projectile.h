@@ -7,8 +7,9 @@ struct Projectile
 	float x;
 	float y;
 
-	int velocity_x;
-	int velocity_y;
+	float velocity_x;
+	float velocity_y;
+	float speed{500};
 
 
 

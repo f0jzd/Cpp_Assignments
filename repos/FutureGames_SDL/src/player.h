@@ -14,12 +14,13 @@ struct Player
 
 	int next_projectile_index = 0;
 
-	int playerWidth{ 32 };
+	int playerWidth{ 64 };
 	int playerHeight{ 8 };
 
 	bool ballFired = false;
 
 	void update();
+	void CheckMovement();
 	void draw();
 	void DrawBall();
 };

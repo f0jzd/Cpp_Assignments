@@ -92,17 +92,22 @@
   <ItemGroup>
     <ClCompile Include="src\brick.cpp" />
     <ClCompile Include="src\collision.cpp" />
+    <ClCompile Include="src\drawFunctions.cpp" />
     <ClCompile Include="src\engine.cpp" />
     <ClCompile Include="src\game.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\math.cpp" />
     <ClCompile Include="src\player.cpp" />
     <ClCompile Include="src\projectile.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\brick.h" />
     <ClInclude Include="src\collision.h" />
+    <ClInclude Include="src\drawFunctions.h" />
     <ClInclude Include="src\engine.h" />
     <ClInclude Include="src\game.h" />
+    <ClInclude Include="src\main.h" />
+    <ClInclude Include="src\math.h" />
     <ClInclude Include="src\player.h" />
     <ClInclude Include="src\projectile.h" />
   </ItemGroup>

@@ -11,23 +11,12 @@ void Player::update()
 		Projectile& proj = projectiles[0];
 		proj.alive = true;
 
-		proj.x = player.x;
-		proj.y = player.y - 16;
+		proj.x = player.x+playerWidth/2;
+		proj.y = player.y - playerHeight;
 	}
 
 	//möve player
-
-	if (keys[SDL_SCANCODE_D])
-		x += playerMovementspeed * delta_time;
-
-	if (keys[SDL_SCANCODE_A])
-		x -= playerMovementspeed * delta_time;
-
-	if (keys[SDL_SCANCODE_S])
-		y += playerMovementspeed * delta_time;
-	
-	if (keys[SDL_SCANCODE_W])
-		y -= playerMovementspeed * delta_time;
+	CheckMovement();
 
 
 	shoot_timer -= delta_time;
@@ -40,7 +29,8 @@ void Player::update()
 		//proj.alive = true;
 
 
-		proj.velocity_y = -500.f;
+		proj.velocity_y = -proj.speed;
+		proj.velocity_x = 0;
 		
 		/*
 		proj.x = x;
@@ -54,13 +44,28 @@ void Player::update()
 	}
 }
 
+void Player::CheckMovement()
+{
+	if (keys[SDL_SCANCODE_D])
+		x += playerMovementspeed * delta_time;
+
+	if (keys[SDL_SCANCODE_A])
+		x -= playerMovementspeed * delta_time;
+
+	if (keys[SDL_SCANCODE_S])
+		y += playerMovementspeed * delta_time;
+
+	if (keys[SDL_SCANCODE_W])
+		y -= playerMovementspeed * delta_time;
+}
+
 void Player::draw()
 {
 
 	
 	SDL_SetRenderDrawColor(render, 255, 255, 255, 255);
 	SDL_Rect rect = { x,y,player.playerWidth, player.playerHeight };
-	SDL_Rect rect2 = { x-player.playerWidth,y,player.playerWidth, player.playerHeight };
+	//SDL_Rect rect2 = { x-player.playerWidth,y,player.playerWidth, player.playerHeight };
 
 	/*SDL_RenderDrawLine(render, player.x, player.y, player.x + 32, player.y);
 	SDL_SetRenderDrawColor(render, 0, 255, 255, 255);
@@ -72,7 +77,7 @@ void Player::draw()
 
 
 	SDL_RenderFillRect( render, &rect);
-	SDL_RenderFillRect( render, &rect2);
+	//SDL_RenderFillRect( render, &rect2);
 }
 
 void Player::DrawBall()
@@ -80,8 +85,8 @@ void Player::DrawBall()
 	Projectile& proj = projectiles[0];
 	proj.alive = true;
 
-	proj.x = player.x;
-	proj.y = player.y - 16;
+	proj.x = player.x + playerWidth;
+	proj.y = player.y - playerHeight;
 }
 
 

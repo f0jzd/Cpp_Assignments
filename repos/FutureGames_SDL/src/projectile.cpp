@@ -2,8 +2,10 @@
 #include "projectile.h"
 #include "collision.h"
 #include "game.h"
+#include "math.h"
+#include <iostream>;
 
-float sign(float a) { return a > 0.f ? 1.f : -1.f; }
+
 
 void Projectile::update()
 {
@@ -41,12 +43,10 @@ bool Projectile::step(float dx, float dy)
 {
 	//Collision check with brick.
 	Circle circle = { x+dx, y+dy, 4 };//Next collider of the bullet/ delta is change
-	draw_circle(circle);
+	//draw_circle(circle);
 
-	AABB box = AABB::make_from_position_size(player.x-16, player.y+5, player.playerWidth, player.playerHeight);
-	AABB box2 = AABB::make_from_position_size(player.x+16, player.y+5, player.playerWidth, player.playerHeight);
-	draw_box(box);	
-	draw_box(box2);
+	AABB box = AABB::make_from_position_size(player.x+player.playerWidth/2, player.y+player.playerHeight/2, player.playerWidth, player.playerHeight);
+	draw_box(box);
 
 
 	for (int i = 0; i < BRICK_COLUMNS; i++)//Here we check collisions with all the bricks
@@ -99,15 +99,24 @@ bool Projectile::step(float dx, float dy)
 
 	if (aabb_circle_intersect(box, circle))
 	{
-		velocity_x = -90;
+
+		float playerX = player.x + player.playerWidth / 2;
+		float playerY = player.y + player.playerHeight / 2+50;
+
+		float k = circle.x - playerX;
+		float j = circle.y - playerY;
+
+		float len = sqrt(k * k + j * j);
+
+		float directionX = k / len;
+		float directionY = j / len;
+
+		velocity_x = directionX * speed;
+		velocity_y = -directionY * speed;
+
 		return false;
 	}
-	if (aabb_circle_intersect(box2, circle))
-	{
-		velocity_x = 90;
-		return false;
-	}
-	
+
 
 
 	//Check collision with game borders.
