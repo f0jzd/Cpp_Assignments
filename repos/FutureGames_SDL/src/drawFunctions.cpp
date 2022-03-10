@@ -28,3 +28,4 @@ void draw_box(const AABB& box)
 
 	SDL_RenderDrawRect(render, &rect);
 }
+

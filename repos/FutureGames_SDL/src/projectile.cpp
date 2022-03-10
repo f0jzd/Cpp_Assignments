@@ -9,11 +9,6 @@
 
 void Projectile::update()
 {
-	if (!alive)
-	{
-		return;
-	}
-
 	if (!step(velocity_x*delta_time,0.f))
 	{
 		velocity_x = -velocity_x;
@@ -65,7 +60,6 @@ bool Projectile::step(float dx, float dy)
 			if (aabb_circle_intersect(box, circle))//If the circle and box intersect a.k.a. the bullet and the brick, then something happens
 			{
 				
-				
 				if (!brick.breakable && !brick.strongWall)
 				{
 					return false;
@@ -85,11 +79,7 @@ bool Projectile::step(float dx, float dy)
 					brick.alive = false;
 					return	false;
 				}
-
-				
-				
-				//alive = false;
-				
+								
 			}
 		}
 

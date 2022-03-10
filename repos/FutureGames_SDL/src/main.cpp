@@ -9,6 +9,11 @@
 #include <string>
 #include "main.h"
 #include <iostream>
+#include <vector>
+#include <fstream>
+
+
+using namespace std;
 
 #define WIDTH 1600
 #define HEIGHT 900
@@ -32,6 +37,24 @@ SDL_Surface* loadSurface(std::string path)
 
 	return optimizedSurface;
 }
+
+
+
+class Levels
+{
+	std::vector<vector<int>> arrOfLevels;
+
+public:
+	void AddToVector(std::vector<int> lvl)
+	{
+		arrOfLevels.push_back(lvl);
+	}
+
+	vector<int> GetLevel(int index)
+	{
+		return arrOfLevels[index];
+	}
+};
 
 
 
@@ -132,11 +155,68 @@ int main()
 			}
 		}
 
+
+		vector<int> lvl1 = {
+		};
+
+		vector<int> lvl2;
+
+
+		Levels lvl;
+
+		lvl.AddToVector(lvl1);
+		//lvl.AddToVector(lvl2);
+
+		fstream infile("levels.txt", fstream::in);
+
+		char a;
+
+		while (infile >> a)
+		{
+			if (isdigit(a))
+			{
+				int ia = a - '0';
+				lvl2.push_back(ia);
+				cout << ia;
+			}
+		}
+
+		infile.close();
+
+
+		int l = 0;
+
+		for (int i = 0; i < BRICK_ROWS; i++)
+		{
+			for (int j = 0; j < BRICK_COLUMNS; j++)
+			{
+				if (lvl2[l] == 0)
+				{
+					bricks[j][i].breakable = false;
+				}
+				if (lvl2[l] == 2)
+				{
+					bricks[j][i].strongWall = true;
+				}
+				if (lvl2[l] == 3)
+				{
+					bricks[j][i].alive = false;
+				}
+				
+				l++;
+			}
+		}
+
+
+
+
+
+
 		for (int i = 0; i < BRICK_COLUMNS ; i++)
 		{
 			for (int j = 0; j < BRICK_ROWS; j++)
 			{
-				EditBrick(i, j);
+				//EditBrick(i, j);
 				if (bricks[i][j].alive)
 				{
 					SDL_SetTextureColorMod(img, rand(), rand(), rand());
@@ -149,14 +229,14 @@ int main()
 				bricks[i][j].draw();
 			}
 		}
-		SetStrongwalls();
+		//SetStrongwalls();
 
 		frameTimer -= delta_time;
 
 		if (frameTimer < 0)
 		{
 			frame++;
-			frameTimer = 0.04761904761f;
+			frameTimer = 0.04545454545;
 			FrameReset(frame);
 		}
 
@@ -211,10 +291,7 @@ void EditBrick(int i, int j)
 	{
 		bricks[i][j].breakable = false;
 	}
-	if (i == 0 && j == BRICK_ROWS - 1)
-	{
-		bricks[i][j].breakable = false;
-	}
+	
 	if (i == BRICK_COLUMNS - 1 && j == BRICK_ROWS - 1)
 	{
 		bricks[i][j].breakable = false;

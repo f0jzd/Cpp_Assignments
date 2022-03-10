@@ -54,6 +54,8 @@ int main()
 
 	bool running = true;
 
+	
+
 	Uint64 previousTicks = SDL_GetPerformanceCounter();
 
 	auto img2 = IMG_LoadTexture(render, IMG_PATH);
@@ -69,10 +71,12 @@ int main()
 		Uint64 deltaTicks = ticks - previousTicks;
 		previousTicks = ticks;
 
+		
+
 		delta_time = (float)deltaTicks / SDL_GetPerformanceFrequency();
 
 		//printf("FPS %f\n", 1.f / delta_time);
-
+		loadMap();
 		SDL_Event event;
 		while (SDL_PollEvent(&event))//puuting if here works, but then it only reads one event while using the while keeps handling more than one event in the queue?
 		{
@@ -106,7 +110,17 @@ int main()
 
 		player.update();
 		player.draw();
+		camera.update();
 
+		for (int i = 0; i < NUMBLOCKS; i++)
+		{
+			Block* block = blocks[i];
+			if (block == nullptr)
+			{
+				continue;
+			}
+			block->draw();
+		}
 
 
 

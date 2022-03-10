@@ -9,7 +9,7 @@ struct Brick
 	bool breakable = true;
 	bool strongWall = false;
 
-	int strongWallLifes{ 4 };
+	int strongWallLifes{ 3 };
 	
 	float w = 160.f;
 	float h = 60.f;

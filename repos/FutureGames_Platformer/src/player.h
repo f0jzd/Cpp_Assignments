@@ -24,6 +24,8 @@ struct Player
 	bool ballFired = false;
 
 	bool step(float dx, float dy);
+	bool sweep(float dx, float dy);
+
 
 
 	void update();

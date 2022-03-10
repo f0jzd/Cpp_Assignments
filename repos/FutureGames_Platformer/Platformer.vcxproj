@@ -90,6 +90,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\block.cpp" />
+    <ClCompile Include="src\camera.cpp" />
     <ClCompile Include="src\collision.cpp" />
     <ClCompile Include="src\drawFunctions.cpp" />
     <ClCompile Include="src\engine.cpp" />
@@ -99,6 +101,8 @@
     <ClCompile Include="src\player.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\block.h" />
+    <ClInclude Include="src\camera.h" />
     <ClInclude Include="src\collision.h" />
     <ClInclude Include="src\drawFunctions.h" />
     <ClInclude Include="src\engine.h" />
