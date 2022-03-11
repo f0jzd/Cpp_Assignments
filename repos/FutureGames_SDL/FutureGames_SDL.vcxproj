@@ -91,6 +91,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\brick.cpp" />
+    <ClCompile Include="src\brickWallTile.cpp" />
     <ClCompile Include="src\collision.cpp" />
     <ClCompile Include="src\drawFunctions.cpp" />
     <ClCompile Include="src\engine.cpp" />
@@ -102,6 +103,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\brick.h" />
+    <ClInclude Include="src\brickWallTile.h" />
     <ClInclude Include="src\collision.h" />
     <ClInclude Include="src\drawFunctions.h" />
     <ClInclude Include="src\engine.h" />

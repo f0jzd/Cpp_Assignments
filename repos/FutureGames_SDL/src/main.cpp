@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
+#include <SDL/SDL_ttf.h>
 #include <stdlib.h>
 #include "engine.h"
 #include "player.h"
@@ -57,6 +58,130 @@ public:
 };
 
 
+void UpdateProjectiles()
+{
+	for (int i = 0; i < PROJECTILE_MAX; i++)
+	{
+		if (projectiles[i].alive)
+		{
+
+			projectiles[i].update();
+			projectiles[i].draw();
+
+				
+		}		
+	}
+}
+
+vector<int> GetLevel()
+{
+	vector<int> theLevel;
+	string levels;
+	bool levelSelected = false;
+	int selectedLevel = 1;
+	char a;
+	int numberOfLines = 0;
+
+	
+
+	fstream infile("levels.txt", fstream::in);
+
+	while (std::getline(infile, levels))
+		++numberOfLines;
+
+	infile.clear();
+	infile.seekg(0);
+
+
+	//cout << "Choose your level: ";
+	//cin >> selectedLevel;
+
+	/*while (selectedLevel>numberOfLines && !levelSelected)
+	{
+
+		if(selectedLevel<numberOfLines)
+		{
+			levelSelected = true;
+		}
+		else
+		{
+			cout << "That level does not exist";
+			cin >> selectedLevel;
+		}
+
+		
+	}*/
+
+	for (int i = 0; i <= selectedLevel; ++i)
+	{
+		getline(infile, levels);
+	}
+		
+
+
+	getline(infile, levels);
+
+	for (auto value : levels)
+	{
+		if (std::isdigit(value))
+		{
+			int ia = value - '0';
+			theLevel.push_back(ia);
+		}
+	}
+
+	/*infile.clear();
+	infile.seekg(0);
+
+	getline(infile, levels);*/
+
+	infile.close();
+
+	return theLevel;
+}
+
+
+void drawSprites(SDL_Texture* img, int imgH, int imgW, int frame, SDL_Texture* img2)
+{
+	for (int i = 0; i < BRICK_COLUMNS ; i++)
+	{
+		for (int j = 0; j < BRICK_ROWS; j++)
+		{
+			//EditBrick(i, j);
+			if (bricks[i][j].alive)
+			{
+				SDL_SetTextureColorMod(img, rand(), rand(), rand());
+				SDL_Rect src{ frame*imgW,0,imgW,imgH };//image data, from where i want the image to be.
+				SDL_Rect dst{ bricks[i][j].x - 80,bricks[i][j].y - 30,bricks[i][j].w,bricks[i][j].h };//x, y on the window from the top left corner
+				SDL_RenderCopy(render, img2, &src, &dst);
+			}				
+			bricks[i][j].draw();
+		}
+	}
+}
+
+void SetBrickType(vector<int> lvl1, int l)
+{
+	for (int i = 0; i < BRICK_ROWS; i++)
+	{
+		for (int j = 0; j < BRICK_COLUMNS; j++)
+		{
+			if (lvl1[l] == 0)
+			{
+				bricks[j][i].breakable = false;
+			}
+			if (lvl1[l] == 2)
+			{
+				bricks[j][i].strongWall = true;
+			}
+			if (lvl1[l] == 3)
+			{
+				bricks[j][i].alive = false;
+			}
+			l++;
+		}
+	}
+}
 
 int main()
 {
@@ -68,6 +193,28 @@ int main()
 	SDL_Texture* img = NULL;
 	int imgflags = IMG_INIT_PNG;
 
+	TTF_Init();
+
+	TTF_Font* roboto = TTF_OpenFont("roboto.ttf",90);
+	if (!roboto)
+	{
+		cout << "Something went Wrong";
+	}
+	
+	SDL_Color white = { 255,255,255,255 };
+	SDL_Surface* surfaceMessage = TTF_RenderText_Solid(roboto, "Hello", white);
+	SDL_Texture* message = SDL_CreateTextureFromSurface(render, surfaceMessage);
+	SDL_Rect message_rect;
+
+	message_rect.x = 0;
+	message_rect.y = 0;
+	message_rect.w = 100;
+	message_rect.h = 100;
+
+	
+
+
+	//SDL_Surface* surfaceMessage = 
 
 	SDL_Surface* gScreenSurface = SDL_GetWindowSurface(window);
 
@@ -84,6 +231,13 @@ int main()
 	auto img2 = IMG_LoadTexture(render, IMG_PATH);
 
 	IMG_Init(IMG_INIT_PNG);
+
+
+	vector<int> lvl1 = {
+	};
+
+
+	lvl1 = GetLevel();
 
 	
 	while (running)
@@ -120,7 +274,6 @@ int main()
 			{
 				int scancode = event.key.keysym.scancode;
 				keys[scancode] = false;
-
 				break;
 			}
 			}
@@ -132,16 +285,32 @@ int main()
 		player.update();
 		player.draw();
 
-		for (int i = 0; i < PROJECTILE_MAX; i++)
+		UpdateProjectiles();
+
+		
+		int xPos, yPos;
+		SDL_PumpEvents();
+		Uint32 buttons = SDL_GetMouseState(&xPos, &yPos);
+		message_rect.x = xPos - 50;
+		message_rect.y = yPos - 50;
+		SDL_RenderCopy(render, message, NULL, &message_rect);
+		
+
+		//wall[0].y = 0 + wall[0].h / 2;
+
+		for (int i = 0; i < 4; i++)
 		{
-			if (projectiles[i].alive)
-			{
+			wall[i].y = wall[i].h * i + wall[i].h / 2;
+			
+		}
 
-				projectiles[i].update();
-				projectiles[i].draw();
 
-				
-			}		
+		;
+
+
+		for (int i = 0; i < 4; i++)
+		{
+			wall[i].draw();
 		}
 
 
@@ -155,80 +324,27 @@ int main()
 			}
 		}
 
-
-		vector<int> lvl1 = {
-		};
-
-		vector<int> lvl2;
-
-
-		Levels lvl;
-
-		lvl.AddToVector(lvl1);
-		//lvl.AddToVector(lvl2);
-
-		fstream infile("levels.txt", fstream::in);
-
-		char a;
-
-		while (infile >> a)
-		{
-			if (isdigit(a))
-			{
-				int ia = a - '0';
-				lvl2.push_back(ia);
-				cout << ia;
-			}
-		}
-
-		infile.close();
-
-
 		int l = 0;
 
-		for (int i = 0; i < BRICK_ROWS; i++)
-		{
-			for (int j = 0; j < BRICK_COLUMNS; j++)
-			{
-				if (lvl2[l] == 0)
-				{
-					bricks[j][i].breakable = false;
-				}
-				if (lvl2[l] == 2)
-				{
-					bricks[j][i].strongWall = true;
-				}
-				if (lvl2[l] == 3)
-				{
-					bricks[j][i].alive = false;
-				}
-				
-				l++;
-			}
-		}
+		SetBrickType(lvl1, l);
+
+		drawSprites(img, imgH, imgW, frame, img2);
 
 
 
 
 
 
-		for (int i = 0; i < BRICK_COLUMNS ; i++)
-		{
-			for (int j = 0; j < BRICK_ROWS; j++)
-			{
-				//EditBrick(i, j);
-				if (bricks[i][j].alive)
-				{
-					SDL_SetTextureColorMod(img, rand(), rand(), rand());
-					SDL_Rect src{ frame*imgW,0,imgW,imgH };//image data, from where i want the image to be.
-					SDL_Rect dst{ bricks[i][j].x - 80,bricks[i][j].y - 30,bricks[i][j].w,bricks[i][j].h };//x, y on the window from the top left corner
-					SDL_RenderCopy(render, img2, &src, &dst);
+		/*bricks[7][4].breakable = false;
+		bricks[7][4].x = xPos;
+		bricks[7][4].y = yPos;
 
-					
-				}				
-				bricks[i][j].draw();
-			}
-		}
+		SDL_Rect src{ frame * imgW,0,imgW,imgH };
+		SDL_Rect dst{ bricks[7][4].x - 80,bricks[7][4].y - 30,bricks[7][4].w, bricks[7][4].h };
+		
+		bricks[7][4].draw();
+		SDL_RenderCopy(render, img2, &src, &dst);*/
+
 		//SetStrongwalls();
 
 		frameTimer -= delta_time;
@@ -242,20 +358,15 @@ int main()
 
 
 
+
 		//SDL_RenderDrawLine(render, player.x + player.playerWidth / 2, player.y - player.playerHeight/2, projectiles[0].x, projectiles[0].y);
 
 
-	
 
-
-		SDL_RenderPresent(render);
-
-
+		// Don't forget to free your surface and texture
 		
 
-
-
-
+		SDL_RenderPresent(render);
 
 
 		SDL_Delay(16);
@@ -270,16 +381,7 @@ int main()
 
 }
 
-void SetStrongwalls()
-{
-	for (int i = 1; i <= BRICK_COLUMNS - 2; i++)
-	{
-		for (int j = 1; j < BRICK_ROWS - 1; j++)
-		{
-			bricks[i][j].strongWall = true;
-		}
-	}
-}
+
 
 void EditBrick(int i, int j)
 {
