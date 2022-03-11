@@ -302,10 +302,7 @@ int main()
 		{
 			wall[i].y = wall[i].h * i + wall[i].h / 2;
 			
-		}
-
-
-		;
+		};
 
 
 		for (int i = 0; i < 4; i++)
