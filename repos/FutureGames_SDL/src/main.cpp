@@ -96,30 +96,27 @@ vector<int> GetLevel()
 	//cout << "Choose your level: ";
 	//cin >> selectedLevel;
 
-	/*while (selectedLevel>numberOfLines && !levelSelected)
+	while (selectedLevel>numberOfLines && !levelSelected)
 	{
 
-		if(selectedLevel<numberOfLines)
+		if(selectedLevel < numberOfLines)
 		{
 			levelSelected = true;
 		}
 		else
 		{
 			cout << "That level does not exist";
-			cin >> selectedLevel;
 		}
 
-		
-	}*/
+	}
 
 	for (int i = 0; i <= selectedLevel; ++i)
 	{
 		getline(infile, levels);
 	}
-		
-
 
 	getline(infile, levels);
+
 
 	for (auto value : levels)
 	{
@@ -129,14 +126,7 @@ vector<int> GetLevel()
 			theLevel.push_back(ia);
 		}
 	}
-
-	/*infile.clear();
-	infile.seekg(0);
-
-	getline(infile, levels);*/
-
 	infile.close();
-
 	return theLevel;
 }
 
@@ -183,15 +173,23 @@ void SetBrickType(vector<int> lvl1, int l)
 	}
 }
 
+void handle_text_ingame(SDL_Texture* message, SDL_Rect& message_rect)
+{
+	int xPos, yPos;
+	SDL_PumpEvents();
+	Uint32 buttons = SDL_GetMouseState(&xPos, &yPos);
+	message_rect.x = xPos - 50;
+	message_rect.y = yPos - 50;
+	SDL_RenderCopy(render, message, NULL, &message_rect);
+}
+
 int main()
 {
-
 
 	SDL_Init(SDL_INIT_EVERYTHING);//Initialize the usage of everything
 	window = SDL_CreateWindow("Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGHT, 0); //A structure to refer to the window we just made
 	render = SDL_CreateRenderer(window,-1,SDL_RENDERER_ACCELERATED);
 	SDL_Texture* img = NULL;
-	int imgflags = IMG_INIT_PNG;
 
 	TTF_Init();
 
@@ -211,11 +209,6 @@ int main()
 	message_rect.w = 100;
 	message_rect.h = 100;
 
-	
-
-
-	//SDL_Surface* surfaceMessage = 
-
 	SDL_Surface* gScreenSurface = SDL_GetWindowSurface(window);
 
 	int imgH = 112;
@@ -233,24 +226,112 @@ int main()
 	IMG_Init(IMG_INIT_PNG);
 
 
-	vector<int> lvl1 = {
-	};
+	string playerText = "asdf";
+
+	vector<int> lvl1 = GetLevel();
+
+	
+	SDL_Color color = { 0, 0, 0 };
+	SDL_Surface *SurfaceText = TTF_RenderText_Solid(roboto, "Hello World!", color);
+	if (!SurfaceText) {
+		cout << "Failed to render text: " << TTF_GetError() << endl;
+	}
+	SDL_Texture* text_texture = SDL_CreateTextureFromSurface(render,SurfaceText );
+
+	
+	SDL_Rect dest = { 0, 0, SurfaceText->w, SurfaceText->h };
+
+	while (running) {
+
+		int xPos, yPos;
+		SDL_PumpEvents();
+		Uint32 buttons = SDL_GetMouseState(&xPos, &yPos);
+
+		SDL_RenderClear(render);
 
 
-	lvl1 = GetLevel();
+		SDL_Event ev;
+		while (SDL_PollEvent(&ev)) {
+			if (ev.type == SDL_TEXTINPUT) 
+			{
+				playerText += ev.text.text;
+				cout << " > " << playerText << endl;
+			}
+			else if (ev.type == SDL_KEYDOWN && ev.key.keysym.sym == SDLK_BACKSPACE && playerText.size()) 
+			{
+				playerText.pop_back();
+				cout << " > " << playerText << endl;
+			}
+			else if (ev.type == SDL_QUIT) 
+			{
+				running = false;
+				break;
+			}
+			else if (ev.type == SDL_KEYDOWN)
+			{
+				int scancode = ev.key.keysym.scancode;
+				if (scancode == SDL_SCANCODE_ESCAPE)
+					running = false;
+
+				if (scancode == SDL_SCANCODE_RETURN)
+				{
+
+					running = false;
+					break;
+				}
+
+				keys[scancode] = true;//Sets the specific key bool to true, depending on the key we press.
+				break;
+			}
+			
+		}
+
+
+		SDL_Color foreground = { 255, 255, 255 };
+
+		if (playerText.size()) {
+			SDL_Surface* text_surf = TTF_RenderText_Solid(roboto, playerText.c_str(), foreground);
+			text_texture = SDL_CreateTextureFromSurface(render, text_surf);
+
+			dest.x = xPos - (text_surf->w / 2.0f);
+			dest.y = yPos;
+			dest.w = text_surf->w;
+			dest.h = text_surf->h;
+			SDL_RenderCopy(render, text_texture, NULL, &dest);
+
+			SDL_DestroyTexture(text_texture);
+			SDL_FreeSurface(text_surf);
+		}
+
+
+
+
+
+		SDL_RenderPresent(render);
+	}
+	
+
+	// Update window
+
+	return true;
+
+	SDL_StopTextInput();
+
+
+	
+
+
 
 	
 	while (running)
 	{
 
-		//get the delta time esque number, and  then the nextframe do it again, compare the numbers, and see how many ticks of this performance counter happened between those two frames. 
 		Uint64 ticks = SDL_GetPerformanceCounter();
 		Uint64 deltaTicks = ticks - previousTicks;
 		previousTicks = ticks;
-
 		delta_time = (float)deltaTicks / SDL_GetPerformanceFrequency();
 
-		printf("FPS %f\n", 1.f / delta_time);
+		//printf("FPS %f\n", 1.f / delta_time);
 
 		SDL_Event event;
 		while (SDL_PollEvent(&event))//puuting if here works, but then it only reads one event while using the while keeps handling more than one event in the queue?
@@ -267,12 +348,17 @@ int main()
 					running = false;
 
 				keys[scancode] = true;//Sets the specific key bool to true, depending on the key we press.
-
 				break;
 			}
 			case SDL_KEYUP:
 			{
 				int scancode = event.key.keysym.scancode;
+
+				if (scancode == SDL_SCANCODE_SPACE)
+				{
+					player.space = false;
+				}
+
 				keys[scancode] = false;
 				break;
 			}
@@ -285,27 +371,17 @@ int main()
 		player.update();
 		player.draw();
 
-		UpdateProjectiles();
 
-		
-		int xPos, yPos;
-		SDL_PumpEvents();
-		Uint32 buttons = SDL_GetMouseState(&xPos, &yPos);
-		message_rect.x = xPos - 50;
-		message_rect.y = yPos - 50;
-		SDL_RenderCopy(render, message, NULL, &message_rect);
+		projectiles->update_projectile();
+
+		handle_text_ingame(message, message_rect);
 		
 
-		//wall[0].y = 0 + wall[0].h / 2;
-
-		for (int i = 0; i < 4; i++)
-		{
-			wall[i].y = wall[i].h * i + wall[i].h / 2;
-			
-		};
+		wall->draw_walls();
+		wall->draw_roof();
 
 
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < 30; i++)
 		{
 			wall[i].draw();
 		}
@@ -327,23 +403,6 @@ int main()
 
 		drawSprites(img, imgH, imgW, frame, img2);
 
-
-
-
-
-
-		/*bricks[7][4].breakable = false;
-		bricks[7][4].x = xPos;
-		bricks[7][4].y = yPos;
-
-		SDL_Rect src{ frame * imgW,0,imgW,imgH };
-		SDL_Rect dst{ bricks[7][4].x - 80,bricks[7][4].y - 30,bricks[7][4].w, bricks[7][4].h };
-		
-		bricks[7][4].draw();
-		SDL_RenderCopy(render, img2, &src, &dst);*/
-
-		//SetStrongwalls();
-
 		frameTimer -= delta_time;
 
 		if (frameTimer < 0)
@@ -352,16 +411,7 @@ int main()
 			frameTimer = 0.04545454545;
 			FrameReset(frame);
 		}
-
-
-
-
-		//SDL_RenderDrawLine(render, player.x + player.playerWidth / 2, player.y - player.playerHeight/2, projectiles[0].x, projectiles[0].y);
-
-
-
-		// Don't forget to free your surface and texture
-		
+				
 
 		SDL_RenderPresent(render);
 

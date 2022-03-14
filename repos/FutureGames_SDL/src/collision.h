@@ -23,6 +23,7 @@ struct AABB
 };
 
 void draw_box(const AABB& box);
+void draw_filled_box(const AABB& box);
 bool aabb_intersect(const AABB& a, const AABB& b);
 
 bool aabb_circle_intersect(const AABB& a, const Circle& b);

@@ -3,6 +3,7 @@
 #include "projectile.h"
 #include "brick.h"
 #include "brickWallTile.h"
+#include "levelHandler.h"
 
 #define PROJECTILE_MAX 20
 #define BRICK_MAX 40

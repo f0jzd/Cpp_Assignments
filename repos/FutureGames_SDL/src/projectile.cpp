@@ -33,7 +33,21 @@ void Projectile::draw()
 	SDL_RenderFillRect(render, &rect);
 
 }
- 
+
+void Projectile::update_projectile()
+{
+
+	for (int i = 0; i < PROJECTILE_MAX; i++)
+	{
+		if (projectiles[i].alive)
+		{
+
+			projectiles[i].update();
+			projectiles[i].draw();
+		}
+	}
+}
+
 bool Projectile::step(float dx, float dy)
 {
 	//Collision check with brick.
@@ -110,8 +124,8 @@ bool Projectile::step(float dx, float dy)
 
 
 	//Check collision with game borders.
-	if (x+dx < 0 || x+dx >= 1600 ||
-		y+dy < 0)
+	if (x+dx < 0+30 || x+dx >= 1600-30 ||
+		y+dy < 0+30)
 	{
 		return false;
 	}
@@ -120,7 +134,6 @@ bool Projectile::step(float dx, float dy)
 		player.playerLives -= 1;
 		alive = false;
 		player.ballFired = false;
-		player.DrawBall();
 	}
 	
 
@@ -128,3 +141,4 @@ bool Projectile::step(float dx, float dy)
 	y += dy;
 	return true;
 }
+

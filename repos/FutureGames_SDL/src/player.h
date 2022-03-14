@@ -3,6 +3,12 @@
 
 struct Player
 {
+
+	int current_balls = 0;
+	int max_balls = 3;
+
+	bool space = false;
+
 	float x{ 600 };
 	float y{ 800 };
 

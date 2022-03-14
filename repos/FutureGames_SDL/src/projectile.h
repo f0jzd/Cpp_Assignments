@@ -3,6 +3,7 @@
 struct Projectile
 {
 	bool alive = false;
+	bool can_move = false;
 
 	float x;
 	float y;
@@ -15,6 +16,7 @@ struct Projectile
 
 	void update();
 	void draw();
+	void update_projectile();
 
 	bool step(float dx, float dy);
 };
