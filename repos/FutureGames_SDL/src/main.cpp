@@ -21,41 +21,7 @@ using namespace std;
 #define IMG_PATH "cow.png"
 
 
-SDL_Surface* gWindow = NULL;
-SDL_Surface* gScreenSurface = NULL;
-SDL_Surface* gPNGSurface = NULL;
 
-
-SDL_Surface* loadSurface(std::string path)
-{
-	SDL_Surface* optimizedSurface = NULL;
-
-	SDL_Surface* loadedSurface = IMG_Load(path.c_str());
-
-	optimizedSurface = SDL_ConvertSurface(loadedSurface, gScreenSurface->format, 0);
-
-	SDL_FreeSurface(loadedSurface);
-
-	return optimizedSurface;
-}
-
-
-
-class Levels
-{
-	std::vector<vector<int>> arrOfLevels;
-
-public:
-	void AddToVector(std::vector<int> lvl)
-	{
-		arrOfLevels.push_back(lvl);
-	}
-
-	vector<int> GetLevel(int index)
-	{
-		return arrOfLevels[index];
-	}
-};
 
 
 void UpdateProjectiles()
@@ -64,16 +30,14 @@ void UpdateProjectiles()
 	{
 		if (projectiles[i].alive)
 		{
-
 			projectiles[i].update();
 			projectiles[i].draw();
-
-				
 		}		
 	}
 }
 
-vector<int> GetLevel()
+
+vector<int> GetLevels(vector<vector<int>> &levelsContainer)
 {
 	vector<int> theLevel;
 	string levels;
@@ -81,13 +45,31 @@ vector<int> GetLevel()
 	int selectedLevel = 1;
 	char a;
 	int numberOfLines = 0;
+	
+
+	vector<int> temp_vector;
 
 	
 
 	fstream infile("levels.txt", fstream::in);
 
 	while (std::getline(infile, levels))
+	{
+		for (auto value : levels)
+		{
+			if (std::isdigit(value))
+			{
+				int ia = value - '0';
+				temp_vector.push_back(ia);
+			}
+		}
+		levelsContainer.push_back(temp_vector);
+		temp_vector.clear();
+
 		++numberOfLines;
+	}
+
+	
 
 	infile.clear();
 	infile.seekg(0);
@@ -129,7 +111,6 @@ vector<int> GetLevel()
 	infile.close();
 	return theLevel;
 }
-
 
 void drawSprites(SDL_Texture* img, int imgH, int imgW, int frame, SDL_Texture* img2)
 {
@@ -175,6 +156,11 @@ void SetBrickType(vector<int> lvl1, int l)
 
 void handle_text_ingame(SDL_Texture* message, SDL_Rect& message_rect)
 {
+	message_rect.x = 0;
+	message_rect.y = 0;
+	message_rect.w = 100;
+	message_rect.h = 100;
+
 	int xPos, yPos;
 	SDL_PumpEvents();
 	Uint32 buttons = SDL_GetMouseState(&xPos, &yPos);
@@ -183,101 +169,147 @@ void handle_text_ingame(SDL_Texture* message, SDL_Rect& message_rect)
 	SDL_RenderCopy(render, message, NULL, &message_rect);
 }
 
+void GetMousePos(int &xPos, int &yPos)
+{
+	SDL_PumpEvents();
+	Uint32 buttons = SDL_GetMouseState(&xPos, &yPos);
+}
+
 int main()
 {
 
+	/*SDL_Surface* gWindow = NULL;
+	SDL_Surface* gScreenSurface = NULL;
+	SDL_Surface* gPNGSurface = NULL;*/
+
+	vector<vector<int>> levels;
+
+	vector<int> lvl1 = GetLevels(levels);
+
+	int selectedLevel = 0;
+
+	
+	///INITILIZATION
 	SDL_Init(SDL_INIT_EVERYTHING);//Initialize the usage of everything
 	window = SDL_CreateWindow("Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGHT, 0); //A structure to refer to the window we just made
 	render = SDL_CreateRenderer(window,-1,SDL_RENDERER_ACCELERATED);
+
+
+	//IMG Initialization
 	SDL_Texture* img = NULL;
+	auto img2 = IMG_LoadTexture(render, IMG_PATH);
+	IMG_Init(IMG_INIT_PNG);
 
+
+	//Font Initialization
 	TTF_Init();
-
-	TTF_Font* roboto = TTF_OpenFont("roboto.ttf",90);
+	TTF_Font* roboto = TTF_OpenFont("res/roboto.ttf",90);
 	if (!roboto)
 	{
 		cout << "Something went Wrong";
 	}
-	
+	TTF_Init();
+	TTF_Font* runescape_uf = TTF_OpenFont("res/runescape_uf.ttf", 90);
+	if (!runescape_uf)
+	{
+		cout << "runescape finna broke";
+	}
+
+
+	//Text on mouse initialization
 	SDL_Color white = { 255,255,255,255 };
 	SDL_Surface* surfaceMessage = TTF_RenderText_Solid(roboto, "Hello", white);
 	SDL_Texture* message = SDL_CreateTextureFromSurface(render, surfaceMessage);
 	SDL_Rect message_rect;
 
-	message_rect.x = 0;
-	message_rect.y = 0;
-	message_rect.w = 100;
-	message_rect.h = 100;
 
-	SDL_Surface* gScreenSurface = SDL_GetWindowSurface(window);
-
-	int imgH = 112;
-	int imgW = 112;
+	//Image Variables
 	int frame = 0;
-
 	float frameTimer = 0.f;
 
-	bool running = true;
 
+	//MAIN LOOP HANDLER + TICKS
+	bool running = true;
+	bool selectLevel = true;
 	Uint64 previousTicks = SDL_GetPerformanceCounter();
 
-	auto img2 = IMG_LoadTexture(render, IMG_PATH);
-
-	IMG_Init(IMG_INIT_PNG);
-
-
-	string playerText = "asdf";
-
-	vector<int> lvl1 = GetLevel();
 
 	
-	SDL_Color color = { 0, 0, 0 };
-	SDL_Surface *SurfaceText = TTF_RenderText_Solid(roboto, "Hello World!", color);
-	if (!SurfaceText) {
+
+	//ETC
+	string playerText = "askdj";
+	string instructtonText = "Choose a level: 1 - " + to_string(levels.size());
+
+	//Get mouse position in window
+	int xPos, yPos;//For mouse position
+	//GetMousePos(xPos, yPos); //method that gets the actual position
+
+	//Text input thing
+	SDL_Color black = { 0, 0, 0 ,255};
+	SDL_Surface* InputTextSurface = TTF_RenderText_Solid(runescape_uf, playerText.c_str(), white);
+	if (!InputTextSurface) {
 		cout << "Failed to render text: " << TTF_GetError() << endl;
 	}
-	SDL_Texture* text_texture = SDL_CreateTextureFromSurface(render,SurfaceText );
+	SDL_Surface* InstructionTextSurface = TTF_RenderText_Solid(runescape_uf, instructtonText.c_str(), white);
+	if (!InstructionTextSurface) {
+		cout << "Failed to render text: " << TTF_GetError() << endl;
+	}
+	SDL_Texture* text_texture = SDL_CreateTextureFromSurface(render,InputTextSurface );
+	SDL_Texture* instruction_texture = SDL_CreateTextureFromSurface(render,InstructionTextSurface );
+	SDL_Rect dest;
+	SDL_Rect dest2;
 
-	
-	SDL_Rect dest = { 0, 0, SurfaceText->w, SurfaceText->h };
-
-	while (running) {
-
-		int xPos, yPos;
-		SDL_PumpEvents();
-		Uint32 buttons = SDL_GetMouseState(&xPos, &yPos);
+	while (selectLevel) {
 
 		SDL_RenderClear(render);
 
-
 		SDL_Event ev;
 		while (SDL_PollEvent(&ev)) {
-			if (ev.type == SDL_TEXTINPUT) 
+			if (ev.type == SDL_TEXTINPUT && playerText.length()<1) 
 			{
 				playerText += ev.text.text;
 				cout << " > " << playerText << endl;
 			}
-			else if (ev.type == SDL_KEYDOWN && ev.key.keysym.sym == SDLK_BACKSPACE && playerText.size()) 
+			if (ev.type == SDL_KEYDOWN && ev.key.keysym.sym == SDLK_BACKSPACE && !playerText.empty()) 
 			{
 				playerText.pop_back();
 				cout << " > " << playerText << endl;
-			}
-			else if (ev.type == SDL_QUIT) 
-			{
-				running = false;
-				break;
 			}
 			else if (ev.type == SDL_KEYDOWN)
 			{
 				int scancode = ev.key.keysym.scancode;
 				if (scancode == SDL_SCANCODE_ESCAPE)
+				{
+					selectLevel = false;
 					running = false;
-
+					break;
+				}
 				if (scancode == SDL_SCANCODE_RETURN)
 				{
 
-					running = false;
-					break;
+					for (auto val : playerText)
+					{
+						if (std::isdigit(val))
+						{
+							if (int ia = val - '0' < levels.size())
+							{
+								selectedLevel = val - '0';
+
+								selectLevel = false;
+								break;
+							}
+							if (int ia = val - '0' > levels.size())
+							{
+								SDL_DestroyTexture(instruction_texture);
+								SDL_FreeSurface(InstructionTextSurface);
+								instructtonText = "Idiot, choose a level between 1 - " + to_string(levels.size());
+								InstructionTextSurface = TTF_RenderText_Solid(runescape_uf, instructtonText.c_str(), white);
+								instruction_texture = SDL_CreateTextureFromSurface(render, InstructionTextSurface);
+							}
+
+						}
+					}
+
 				}
 
 				keys[scancode] = true;//Sets the specific key bool to true, depending on the key we press.
@@ -286,45 +318,46 @@ int main()
 			
 		}
 
-
-		SDL_Color foreground = { 255, 255, 255 };
-
-		if (playerText.size()) {
-			SDL_Surface* text_surf = TTF_RenderText_Solid(roboto, playerText.c_str(), foreground);
+		SDL_Surface* text_surf = TTF_RenderText_Solid(runescape_uf, playerText.c_str(), white);
+		if (!playerText.empty()) {
+			
 			text_texture = SDL_CreateTextureFromSurface(render, text_surf);
-
-			dest.x = xPos - (text_surf->w / 2.0f);
-			dest.y = yPos;
+			dest.x = WIDTH/2 - (text_surf->w / 2.0f);
+			dest.y = HEIGHT/2 - (text_surf->h/2.0f);
 			dest.w = text_surf->w;
 			dest.h = text_surf->h;
-			SDL_RenderCopy(render, text_texture, NULL, &dest);
 
-			SDL_DestroyTexture(text_texture);
-			SDL_FreeSurface(text_surf);
+			
+		}
+		SDL_Surface* text_surf2 = TTF_RenderText_Solid(runescape_uf, instructtonText.c_str(), white);
+		if (!instructtonText.empty()) {
+			dest2.x = WIDTH / 2 - (text_surf2->w / 2.0f);
+			dest2.y = HEIGHT / 2 - (text_surf2->h / 2.0f)-120;
+			dest2.w = text_surf2->w;
+			dest2.h = text_surf2->h;
 		}
 
-
-
-
-
+		SDL_RenderCopy(render, text_texture, NULL, &dest);
+		SDL_RenderCopy(render, instruction_texture, NULL, &dest2);
 		SDL_RenderPresent(render);
+
+		SDL_DestroyTexture(text_texture);
+		SDL_FreeSurface(text_surf);
+
 	}
+
 	
-
-	// Update window
-
-	return true;
-
+	
 	SDL_StopTextInput();
-
-
 	
-
-
 
 	
 	while (running)
 	{
+
+		frameNumber++;
+		int imgW = 112;
+		int imgH = 112;
 
 		Uint64 ticks = SDL_GetPerformanceCounter();
 		Uint64 deltaTicks = ticks - previousTicks;
@@ -343,11 +376,18 @@ int main()
 				break;
 			case SDL_KEYDOWN:
 			{
+				if (event.key.repeat)
+				{
+					break;
+				}
 				int scancode = event.key.keysym.scancode;
 				if (scancode == SDL_SCANCODE_ESCAPE)
 					running = false;
 
 				keys[scancode] = true;//Sets the specific key bool to true, depending on the key we press.
+				keys_state[scancode].state = true;
+				keys_state[scancode].changeFrame = frameNumber;
+
 				break;
 			}
 			case SDL_KEYUP:
@@ -359,20 +399,24 @@ int main()
 					player.space = false;
 				}
 
+				keys_state[scancode].state = false;
+				keys_state[scancode].changeFrame = frameNumber;
+
 				keys[scancode] = false;
 				break;
+
 			}
 			}
 		}
 		SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
 		SDL_RenderClear(render);
 		
-
+		projectiles->update_projectile();
 		player.update();
 		player.draw();
 
 
-		projectiles->update_projectile();
+		
 
 		handle_text_ingame(message, message_rect);
 		
@@ -399,7 +443,7 @@ int main()
 
 		int l = 0;
 
-		SetBrickType(lvl1, l);
+		SetBrickType(levels[selectedLevel], l);
 
 		drawSprites(img, imgH, imgW, frame, img2);
 
@@ -429,23 +473,6 @@ int main()
 }
 
 
-
-void EditBrick(int i, int j)
-{
-	if (i == 0 && j == 0)
-	{
-		bricks[i][j].breakable = false;
-	}
-	if (i == BRICK_COLUMNS - 1 && j == 0)
-	{
-		bricks[i][j].breakable = false;
-	}
-	
-	if (i == BRICK_COLUMNS - 1 && j == BRICK_ROWS - 1)
-	{
-		bricks[i][j].breakable = false;
-	}
-}
 
 void FrameReset(int& frame)
 {

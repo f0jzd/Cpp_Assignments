@@ -15,10 +15,10 @@ void Player::update()
 
 	CheckMovement();
 
-	shoot_timer -= delta_time;
-	if (keys[SDL_SCANCODE_SPACE] && current_balls < 3 && !space)//HERE WE FIRE BULLET; ENEMY GO boom.
+	
+	if (GetKeyPressed(SDL_SCANCODE_SPACE))//HERE WE FIRE BULLET; ENEMY GO boom.
 	{
-		space = true;
+		//space = true;
 		proj.alive = true;
 		current_balls++;
 		proj.velocity_y = -proj.speed;
@@ -28,17 +28,13 @@ void Player::update()
 
 void Player::CheckMovement()
 {
-	if (keys[SDL_SCANCODE_D])
+	if (GetKey(SDL_SCANCODE_D))
 		x += playerMovementspeed * delta_time;
 
-	if (keys[SDL_SCANCODE_A])
+	if (GetKey(SDL_SCANCODE_A))
 		x -= playerMovementspeed * delta_time;
 
-	if (keys[SDL_SCANCODE_S])
-		y += playerMovementspeed * delta_time;
-
-	if (keys[SDL_SCANCODE_W])
-		y -= playerMovementspeed * delta_time;
+	
 }
 
 void Player::draw()

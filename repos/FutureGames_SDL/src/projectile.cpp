@@ -99,6 +99,14 @@ bool Projectile::step(float dx, float dy)
 
 	}
 
+	if (dy<0.f)
+	{
+		if (aabb_circle_intersect(box,circle))
+		{
+			return false;
+		}
+	}
+
 	
 
 	if (aabb_circle_intersect(box, circle))
