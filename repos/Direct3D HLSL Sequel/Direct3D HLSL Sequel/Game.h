@@ -88,4 +88,8 @@ private:
 
     void PostProcess();
 
+    unsigned int bufferNumber;
+
+    float shaderTime;
+
 };

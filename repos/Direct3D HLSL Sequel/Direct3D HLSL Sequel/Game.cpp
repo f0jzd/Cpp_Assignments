@@ -17,7 +17,8 @@ using Microsoft::WRL::ComPtr;
 
 struct VS_CONSTANT_BUFFER
 {
-    alignas(16) float time = 0;
+    alignas(16) float time;
+
 }VsConstData;
 
 
@@ -45,13 +46,12 @@ void Game::Initialize(HWND window, int width, int height)
     m_deviceResources->CreateWindowSizeDependentResources();
     CreateWindowSizeDependentResources();
 
-
     // TODO: Change the timer settings if you want something other than the default variable timestep mode.
     // e.g. for 60 FPS fixed timestep update logic, call:
-    /*
+    
     m_timer.SetFixedTimeStep(true);
     m_timer.SetTargetElapsedSeconds(1.0 / 60);
-    */
+    
 }
 
 #pragma region Frame Update
@@ -75,13 +75,18 @@ void Game::Update(DX::StepTimer const& timer)
     auto totalTime = static_cast<float>(timer.GetTotalSeconds());
 
     auto context = m_deviceResources->GetD3DDeviceContext();
-
-
- 
+     
     m_world = Matrix::CreateRotationZ(totalTime / 2.f)
         * Matrix::CreateRotationY(totalTime)
         * Matrix::CreateRotationX(totalTime * 2.f);
 
+    
+    VsConstData.time += elapsedTime;
+
+    context->UpdateSubresource(m_chromAbberationParam.Get(), 0, nullptr, &VsConstData, sizeof(VS_CONSTANT_BUFFER), 0);
+
+
+    
 
 
 }
@@ -104,19 +109,12 @@ void Game::Render()
 
     // TODO: Add your rendering code here.
 
-    
-
-
-    
+   
     m_spriteBatch->Begin();
     m_spriteBatch->Draw(m_background.Get(), m_fullscreenRect);
     m_spriteBatch->End();
 
     m_shape->Draw(m_world, m_view, m_projection);
-
-
-
-
 
     m_deviceResources->PIXEndEvent();
 
@@ -214,7 +212,6 @@ void Game::CreateDeviceDependentResources()
 
     context = m_deviceResources->GetD3DDeviceContext();
 
-
     DX::ThrowIfFailed(CreateWICTextureFromFile(device,
         L"sunset.jpg", nullptr,
         m_background.ReleaseAndGetAddressOf()));
@@ -223,35 +220,10 @@ void Game::CreateDeviceDependentResources()
     DX::ThrowIfFailed(device->CreatePixelShader(blob.data(), blob.size(),
         nullptr, m_chromAbberation.ReleaseAndGetAddressOf()));
 
+    CD3D11_BUFFER_DESC cbDesc(sizeof(VS_CONSTANT_BUFFER),
+        D3D11_BIND_CONSTANT_BUFFER);
 
-    D3D11_BUFFER_DESC cbDesc;
-    cbDesc.ByteWidth = sizeof(VS_CONSTANT_BUFFER);
-    cbDesc.Usage = D3D11_USAGE_DYNAMIC;
-    cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    cbDesc.MiscFlags = 0;
-    cbDesc.StructureByteStride = 0;
-
-    /*CD3D11_BUFFER_DESC cbDesc(sizeof(VS_CONSTANT_BUFFER),
-        D3D11_BIND_VERTEX_BUFFER,D3D11_USAGE_DYNAMIC,D3D11_CPU_ACCESS_WRITE);*/
-
-    static D3D11_SUBRESOURCE_DATA InitData;
-    InitData.pSysMem = &VsConstData;
-    InitData.SysMemPitch = 0;
-    InitData.SysMemSlicePitch = 0;
-
-
-
-    DX::ThrowIfFailed(device->CreateBuffer(&cbDesc, &InitData, m_chromAbberationParam.ReleaseAndGetAddressOf()));
-    
-    //context->VSSetConstantBuffers(0, 1, m_chromAbberationParam.GetAddressOf());
-    
-
-
-    //D3D11_SUBRESOURCE_DATA initData = { &VsConstData, 0, 0 };
-
-
-    /*D3D11_BUFFER_DESC cbDesc;
+   /* D3D11_BUFFER_DESC cbDesc = { 0 };
     cbDesc.ByteWidth = sizeof(VS_CONSTANT_BUFFER);
     cbDesc.Usage = D3D11_USAGE_DYNAMIC;
     cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -259,7 +231,15 @@ void Game::CreateDeviceDependentResources()
     cbDesc.MiscFlags = 0;
     cbDesc.StructureByteStride = 0;*/
 
-    
+    D3D11_SUBRESOURCE_DATA InitData;
+    InitData.pSysMem = &VsConstData;
+    InitData.SysMemPitch = 0;
+    InitData.SysMemSlicePitch = 0;
+
+    device->CreateBuffer(&cbDesc, &InitData, m_chromAbberationParam.GetAddressOf());
+
+    //context->PSSetConstantBuffers(0, 1, m_chromAbberationParam.GetAddressOf());
+        
 
     m_offscreenTexture->SetDevice(device);
     m_renderTarget1->SetDevice(device);
@@ -293,16 +273,10 @@ void Game::CreateWindowSizeDependentResources()
     m_renderTarget1->SetWindow(m_bloomRect);
     m_renderTarget2->SetWindow(m_bloomRect);
 
-    //VS_CONSTANT_BUFFER VsConstData = {};
 
     
-        //context->UpdateSubresource(m_chromAbberationParam.Get(), 0, nullptr, &VsConstData, sizeof(VS_CONSTANT_BUFFER), 0);
-   
-
-        m_renderTarget2->SetWindow(m_bloomRect);
-
-
-
+    context->UpdateSubresource(m_chromAbberationParam.Get(), 0, nullptr, &VsConstData, sizeof(VS_CONSTANT_BUFFER), 0);
+  
 }
 
 
@@ -327,6 +301,14 @@ void Game::OnDeviceRestored()
 void Game::PostProcess()
 {
     auto context = m_deviceResources->GetD3DDeviceContext();
+
+    ID3D11ShaderResourceView* null[] = { nullptr, nullptr };
+
+    context->CopyResource(m_deviceResources->GetRenderTarget(),
+        m_offscreenTexture->GetRenderTarget());
+
+
+
     auto renderTarget = m_deviceResources->GetRenderTargetView();
     context->OMSetRenderTargets(1, &renderTarget, nullptr);
     auto rtSRV = m_offscreenTexture->GetShaderResourceView();
@@ -335,11 +317,15 @@ void Game::PostProcess()
         nullptr, nullptr, nullptr, nullptr,
         [=]() {
             context->PSSetShader(m_chromAbberation.Get(), nullptr, 0);
-            context->PSSetShaderResources(1, 1, &rtSRV);
-            context->PSSetConstantBuffers(0, 1, &m_chromAbberationParam);
+            //context->PSSetShaderResources(1, 1, &rtSRV);
+            context->PSSetConstantBuffers(0, 1, m_chromAbberationParam.GetAddressOf());
         });
     m_spriteBatch->Draw(rtSRV, m_fullscreenRect);
     m_spriteBatch->End();
+
+
+
+    context->PSSetShaderResources(0, 2, null);
 
 }
 
